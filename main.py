@@ -60,9 +60,14 @@ def filter_corpus(corpus:list[dict], pattern:str) -> list[dict]:
     return new_corpus
 
 
+import urllib.parse  
 def get_arxiv_paper(query:str, debug:bool=False) -> list[ArxivPaper]:
-    client = arxiv.Client(num_retries=10,delay_seconds=10)
-    feed = feedparser.parse(f"https://rss.arxiv.org/atom/{query}")
+    client = arxiv.Client(num_retries=10,delay_seconds=10) 
+    clean_query = query.strip().replace('\n', ' ').replace('\r', '')
+    encoded_query = urllib.parse.quote(clean_query)
+    url = f"https://rss.arxiv.org/atom/{encoded_query}"
+    feed = feedparser.parse(url)
+    
     if 'Feed error for query' in feed.feed.title:
         raise Exception(f"Invalid ARXIV_QUERY: {query}.")
     if not debug:
